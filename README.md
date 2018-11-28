@@ -36,7 +36,7 @@ In [5]: plotface.gui()
 
 This example shows the aesthetic benefit of switching to a dark interface when working with the Monokai color scheme.
 
-![](https://user-images.githubusercontent.com/20203034/49155161-8a500780-f31a-11e8-8f29-c9eff34460dc.png)
+![](https://user-images.githubusercontent.com/20203034/49161136-87f4aa00-f328-11e8-9c79-97cb89e2688a.png)
 
 
 ## Saving Figures
