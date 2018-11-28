@@ -34,12 +34,13 @@ def dark():
         "axes.edgecolor": "white",
         "xtick.color": "white",
         "ytick.color": "white",
+        "figure.facecolor": "none",
     }
     plt.rcParams.update(rc_dark)
     _setstate(_dark)
 
 
-def light():
+def light(bg='white'):
     """
     Adjust figure interface to a light background (as is default)
     """
@@ -49,6 +50,7 @@ def light():
         "axes.edgecolor": "black",
         "xtick.color": "black",
         "ytick.color": "black",
+        "figure.facecolor": bg,
     }
     plt.rcParams.update(rc_light)
     _setstate(_light)

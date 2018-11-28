@@ -2,6 +2,9 @@
 
 Python module to switch between light/dark interface and inline/gui backend of matplotlib figures in IPython on the fly.
 
+It is particularly useful when running a Jupyter or IPython console embedded in a dark themed shell, as for example
+when using [Spyder](https://www.spyder-ide.org) with color schemes like Monokai or similar ([see below](#example)).
+
 
 ## Installation
 
@@ -27,6 +30,16 @@ In [4]: plotface.inline()
 
 In [5]: plotface.gui()
 ```
+
+
+## Example
+
+This example shows the aesthetic benefit of switching to a dark interface when working with the Monokai color scheme.
+
+![](https://user-images.githubusercontent.com/20203034/49155161-8a500780-f31a-11e8-8f29-c9eff34460dc.png)
+
+
+## Saving Figures
 
 To keep having figures saved with black lines and text regardless of light or dark interface, the module hooks the
 `savefig` function of matplotlib's pyplot to replace the color of all white text and lines with black.
