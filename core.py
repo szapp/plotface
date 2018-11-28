@@ -24,12 +24,13 @@ def _setstate(new):
     _state = new
 
 
-def dark():
+def dark(afc='none'):
     """
     Adjust figure interface to a dark background
     """
     rc_dark = {
         "text.color": "white",
+        "axes.facecolor": afc,
         "axes.labelcolor": "white",
         "axes.edgecolor": "white",
         "xtick.color": "white",
