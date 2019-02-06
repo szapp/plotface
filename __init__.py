@@ -52,13 +52,13 @@ def _apply(obj, oldcolor, newcolor):
 
     # Edge color (or multiple edge colors for collections)
     if hasattr(obj, 'get_edgecolor'):
-        if isinstance(obj.get_edgecolor(), list):
+        if not isinstance(obj.get_edgecolor(), (tuple, str)):
             colors = obj.get_edgecolor()
             colors = [newcolor if i in oldcolor else i for i in colors]
             if colors != obj.get_edgecolor():
                 changed = True
                 obj.set_edgecolor(colors)
-        else:
+        elif obj.get_edgecolor() in oldcolor:
             obj.set_edgecolor(newcolor)
             changed = True
 
