@@ -36,17 +36,33 @@ except NameError:
 
 
 def _apply(obj, oldcolor, newcolor):
+    changed = False
+
+    # Recurse into sub objects
+    if isinstance(obj, list):
+        for i in obj:
+            if _apply(i, oldcolor, newcolor):
+                changed = True
+        return changed
+
+    # Fill color
     if hasattr(obj, 'get_color') and obj.get_color() in oldcolor:
         obj.set_color(newcolor)
-        return True
-    elif hasattr(obj, 'get_edgecolor') and obj.get_edgecolor() in oldcolor:
-        obj.set_edgecolor(newcolor)
-        return True
-    elif isinstance(obj, list):
-        for i in obj:
-            _apply(i, oldcolor, newcolor)
-        return True
-    return False
+        changed = True
+
+    # Edge color (or multiple edge colors for collections)
+    if hasattr(obj, 'get_edgecolor'):
+        if isinstance(obj.get_edgecolor(), list):
+            colors = obj.get_edgecolor()
+            colors = [newcolor if i in oldcolor else i for i in colors]
+            if colors != obj.get_edgecolor():
+                changed = True
+                obj.set_edgecolor(colors)
+        else:
+            obj.set_edgecolor(newcolor)
+            changed = True
+
+    return changed
 
 
 def _savefig_new(self, fname, **kwargs):
