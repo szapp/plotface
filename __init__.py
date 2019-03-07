@@ -10,6 +10,7 @@ savefig function on loading to allow replacing the color of all white text and
 lines with black in case the dark interface is selected.
 """
 
+import matplotlib as mpl
 from matplotlib import pyplot as plt
 from .core import (
     getstate,
@@ -39,7 +40,9 @@ def _apply(obj, oldcolor, newcolor):
     changed = False
 
     # Recurse into sub objects
-    if isinstance(obj, list):
+    if isinstance(obj, (list, mpl.collections.LineCollection)):
+        if isinstance(obj, mpl.collections.LineCollection):
+            obj = obj.get_children()
         for i in obj:
             if _apply(i, oldcolor, newcolor):
                 changed = True
