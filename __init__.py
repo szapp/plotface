@@ -40,8 +40,10 @@ def _apply(obj, oldcolor, newcolor):
     changed = False
 
     # Recurse into sub objects
-    if isinstance(obj, (list, mpl.collections.LineCollection)):
-        if isinstance(obj, mpl.collections.LineCollection):
+    if isinstance(obj, (list,
+                        mpl.collections.LineCollection,
+                        mpl.lines.Line2D)):
+        if isinstance(obj, (mpl.collections.LineCollection, mpl.lines.Line2D)):
             obj = obj.get_children()
         for i in obj:
             if _apply(i, oldcolor, newcolor):
