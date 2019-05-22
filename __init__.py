@@ -42,6 +42,9 @@ def _apply(obj, oldcolor, newcolor):
     if hasattr(obj, 'get_color') and obj.get_color() in oldcolor:
         obj.set_color(newcolor)
         changed = True
+    if hasattr(obj, 'get_facecolor') and obj.get_facecolor() in oldcolor:
+        obj.set_facecolor(newcolor)
+        changed = True
 
     # Edge color (or multiple edge colors for collections)
     if hasattr(obj, 'get_edgecolor'):
@@ -75,8 +78,7 @@ def _savefig_new(self, fname, **kwargs):
 
         # Recurse into children
         for ele in pool:
-            if hasattr(ele, 'get_children') and ele.get_children():
-                # pool.remove(ele)
+            if hasattr(ele, 'get_children'):
                 pool += ele.get_children()
             elif isinstance(ele, list):
                 pool.remove(ele)
@@ -87,7 +89,6 @@ def _savefig_new(self, fname, **kwargs):
         for c in set(pool):
             if _apply(c, ['w', 'white',
                           (1, 1, 1, 1),
-                          (1, 1, 1, 0),
                           (0.8, 0.8, 0.8, 0.8)],  # Legend
                       'black'):
                 obj.append(c)
