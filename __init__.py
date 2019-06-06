@@ -42,16 +42,31 @@ def _apply(obj, oldcolor, newcolor):
     if hasattr(obj, 'get_color') and obj.get_color() in oldcolor:
         obj.set_color(newcolor)
         changed = True
-    if hasattr(obj, 'get_facecolor') and obj.get_facecolor() in oldcolor:
-        obj.set_facecolor(newcolor)
-        changed = True
+
+    # Face color (or multiple face colors for collections)
+    if hasattr(obj, 'get_facecolor'):
+        if not isinstance(obj.get_facecolor(), (tuple, str)):
+            colors_b4 = [tuple(i) if not isinstance(i, (tuple, str)) else i
+                         for i in obj.get_facecolor()]
+            colors = [tuple(i) if not isinstance(i, (tuple, str)) else i
+                      for i in obj.get_facecolor()]
+            colors = [newcolor if i in oldcolor else i for i in colors]
+            if colors != colors_b4:
+                changed = True
+                obj.set_facecolor(colors)
+        elif obj.get_facecolor() in oldcolor:
+            obj.set_facecolor(newcolor)
+            changed = True
 
     # Edge color (or multiple edge colors for collections)
     if hasattr(obj, 'get_edgecolor'):
         if not isinstance(obj.get_edgecolor(), (tuple, str)):
-            colors = obj.get_edgecolor()
+            colors_b4 = [tuple(i) if not isinstance(i, (tuple, str)) else i
+                         for i in obj.get_edgecolor()]
+            colors = [tuple(i) if not isinstance(i, (tuple, str)) else i
+                      for i in obj.get_edgecolor()]
             colors = [newcolor if i in oldcolor else i for i in colors]
-            if colors != obj.get_edgecolor():
+            if colors != colors_b4:
                 changed = True
                 obj.set_edgecolor(colors)
         elif obj.get_edgecolor() in oldcolor:
