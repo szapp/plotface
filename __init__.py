@@ -39,9 +39,13 @@ def _apply(obj, oldcolor, newcolor):
     changed = False
 
     # Fill color
-    if hasattr(obj, 'get_color') and obj.get_color() in oldcolor:
-        obj.set_color(newcolor)
-        changed = True
+    if hasattr(obj, 'get_color'):
+        colr = obj.get_color()  # Special case if it is a numpy array
+        if not isinstance(colr, (tuple, str)):
+            colr = tuple(colr)
+        if colr in oldcolor:
+            obj.set_color(newcolor)
+            changed = True
 
     # Face color (or multiple face colors for collections)
     if hasattr(obj, 'get_facecolor'):
@@ -74,14 +78,20 @@ def _apply(obj, oldcolor, newcolor):
             changed = True
 
     # Marker colors
-    if (hasattr(obj, 'get_markerfacecolor')
-            and obj.get_markerfacecolor() in oldcolor):
-        obj.set_markerfacecolor(newcolor)
-        changed = True
-    if (hasattr(obj, 'get_markeredgecolor')
-            and obj.get_markeredgecolor() in oldcolor):
-        obj.set_markeredgecolor(newcolor)
-        changed = True
+    if hasattr(obj, 'get_markerfacecolor'):
+        colr = obj.get_markerfacecolor()  # Special case if it is a numpy array
+        if not isinstance(colr, (tuple, str)):
+            colr = tuple(colr)
+        if colr in oldcolor:
+            obj.set_markerfacecolor(newcolor)
+            changed = True
+    if hasattr(obj, 'get_markeredgecolor'):
+        colr = obj.get_markeredgecolor()  # Special case if it is a numpy array
+        if not isinstance(colr, (tuple, str)):
+            colr = tuple(colr)
+        if colr in oldcolor:
+            obj.set_markeredgecolor(newcolor)
+            changed = True
 
     return changed
 
