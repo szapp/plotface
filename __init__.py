@@ -35,62 +35,54 @@ except NameError:
     _savefig_orig = plt.Figure.savefig
 
 
+def _isnested(coll):
+    if hasattr(coll, '__len__'):
+        if len(coll) > 4:
+            return True
+        for c in coll:
+            if not isinstance(c, (tuple, str)) and hasattr(c, '__len__'):
+                return True
+    return False
+
+
 def _apply(obj, oldcolor, newcolor):
+    attributes = [
+        'color',
+        'facecolor',
+        'edgecolor',
+        'markerfacecolor',
+        'markeredgecolor',
+    ]
+
     changed = False
+    for attr in attributes:
+        getter = 'get_' + attr
+        setter = 'set_' + attr
 
-    # Fill color
-    if hasattr(obj, 'get_color'):
-        colr = obj.get_color()  # Special case if it is a numpy array
-        if not isinstance(colr, (tuple, str)):
-            colr = tuple(colr)
-        if colr in oldcolor:
-            obj.set_color(newcolor)
-            changed = True
+        if not hasattr(obj, getter) or not hasattr(obj, setter):
+            continue
 
-    # Face color (or multiple face colors for collections)
-    if hasattr(obj, 'get_facecolor'):
-        if not isinstance(obj.get_facecolor(), (tuple, str)):
+        getter = getattr(obj, getter)
+        setter = getattr(obj, setter)
+
+        # Skip empty collections
+        if hasattr(getter(), '__len__') and len(getter()) == 0:
+            continue
+
+        # Change shallow, non-tuple collections into tuples
+        if not isinstance(getter(), str) and not _isnested(getter()):
+            setter(tuple(getter()))
+
+        # Recurse into collections
+        if not isinstance(getter(), (tuple, str)):
             colors_b4 = [tuple(i) if not isinstance(i, (tuple, str)) else i
-                         for i in obj.get_facecolor()]
-            colors = [tuple(i) if not isinstance(i, (tuple, str)) else i
-                      for i in obj.get_facecolor()]
-            colors = [newcolor if i in oldcolor else i for i in colors]
+                         for i in getter()]
+            colors = [newcolor if i in oldcolor else i for i in colors_b4]
             if colors != colors_b4:
+                setter(colors)
                 changed = True
-                obj.set_facecolor(colors)
-        elif obj.get_facecolor() in oldcolor:
-            obj.set_facecolor(newcolor)
-            changed = True
-
-    # Edge color (or multiple edge colors for collections)
-    if hasattr(obj, 'get_edgecolor'):
-        if not isinstance(obj.get_edgecolor(), (tuple, str)):
-            colors_b4 = [tuple(i) if not isinstance(i, (tuple, str)) else i
-                         for i in obj.get_edgecolor()]
-            colors = [tuple(i) if not isinstance(i, (tuple, str)) else i
-                      for i in obj.get_edgecolor()]
-            colors = [newcolor if i in oldcolor else i for i in colors]
-            if colors != colors_b4:
-                changed = True
-                obj.set_edgecolor(colors)
-        elif obj.get_edgecolor() in oldcolor:
-            obj.set_edgecolor(newcolor)
-            changed = True
-
-    # Marker colors
-    if hasattr(obj, 'get_markerfacecolor'):
-        colr = obj.get_markerfacecolor()  # Special case if it is a numpy array
-        if not isinstance(colr, (tuple, str)):
-            colr = tuple(colr)
-        if colr in oldcolor:
-            obj.set_markerfacecolor(newcolor)
-            changed = True
-    if hasattr(obj, 'get_markeredgecolor'):
-        colr = obj.get_markeredgecolor()  # Special case if it is a numpy array
-        if not isinstance(colr, (tuple, str)):
-            colr = tuple(colr)
-        if colr in oldcolor:
-            obj.set_markeredgecolor(newcolor)
+        elif getter() in oldcolor:
+            setter(newcolor)
             changed = True
 
     return changed
