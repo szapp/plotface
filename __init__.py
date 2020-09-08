@@ -10,6 +10,7 @@ savefig function on loading to allow replacing the color of all white text and
 lines with black in case the dark interface is selected.
 """
 
+import matplotlib.colors as mcolors
 from matplotlib import pyplot as plt
 from .core import (
     getstate,
@@ -46,6 +47,10 @@ def _isnested(coll):
 
 
 def _apply(obj, oldcolor, newcolor):
+    assert len(oldcolor) == len(newcolor)
+    oldcolor = list(map(mcolors.to_rgba, oldcolor))
+    newcolor = list(map(mcolors.to_rgba, newcolor))
+
     attributes = [
         'color',
         'facecolor',
@@ -77,13 +82,17 @@ def _apply(obj, oldcolor, newcolor):
         if not isinstance(getter(), (tuple, str)):
             colors_b4 = [tuple(i) if not isinstance(i, (tuple, str)) else i
                          for i in getter()]
-            colors = [newcolor if i in oldcolor else i for i in colors_b4]
+            colors_b4 = list(map(mcolors.to_rgba, colors_b4))
+            colors = [newcolor[oldcolor.index(i)] if i in oldcolor else i
+                      for i in colors_b4]
             if colors != colors_b4:
                 setter(colors)
                 changed = True
-        elif getter() in oldcolor:
-            setter(newcolor)
-            changed = True
+        else:
+            col = mcolors.to_rgba(getter())
+            if col in oldcolor:
+                setter(newcolor[oldcolor.index(col)])
+                changed = True
 
     return changed
 
@@ -101,22 +110,22 @@ def _savefig_new(self, fname, **kwargs):
                 pool.remove(ele)
                 pool += ele
 
+        # Define old and new colors
+        oc = ['white', (0.153, 0.157, 0.133, 0.789)]
+        nc = ['black', (1, 1, 1, 0.789)]
+        oc += plt.rcParams['axes.prop_cycle'].by_key()['color']
+        nc += plt.rcParamsDefault['axes.prop_cycle'].by_key()['color']
+
         # Iterate over all objects
-        obj = []
-        for c in set(pool):
-            if _apply(c, ['w', 'white',
-                          (1, 1, 1, 1),
-                          (0.8, 0.8, 0.8, 0.8)],  # Legend
-                      'black'):
-                obj.append(c)
+        obj = [c for c in set(pool) if _apply(c, oc, nc)]
 
         # Call original save function
         _savefig_orig(self, fname, **kwargs)
 
         # Restore original colors
         for o in obj:
-            if not _apply(o, ['black', (0, 0, 0, 1)], 'white'):
-                _apply(o, [(0, 0, 0, 0.8)], (0.8, 0.8, 0.8, 0.8))  # Legend
+            _apply(o, nc, oc)
+
     else:
         # Light interface: No changes
         _savefig_orig(self, fname, **kwargs)
