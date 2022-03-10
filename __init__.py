@@ -64,6 +64,10 @@ def _apply(obj, oldcolor, newcolor):
         getter = 'get_' + attr
         setter = 'set_' + attr
 
+        # Special case to handle collections better
+        if hasattr(obj, getter + 's'):
+            getter += 's'
+
         if not hasattr(obj, getter) or not hasattr(obj, setter):
             continue
 
